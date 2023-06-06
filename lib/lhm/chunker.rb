@@ -20,15 +20,13 @@ module Lhm
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
-      @chunk_finder = ChunkFinder.new(migration, connection, options)
+      @chunk_finder = options.fetch(:chuck_finder, ChunkFinder).new(migration, connection, options)
       @options = options
       @raise_on_warnings = options.fetch(:raise_on_warnings, false)
       @verifier = options[:verifier]
       if @throttler = options[:throttler]
         @throttler.connection = @connection if @throttler.respond_to?(:connection=)
       end
-      @start = @chunk_finder.start
-      @limit = @chunk_finder.limit
       @printer = options[:printer] || Printer::Percentage.new
       @retry_options = options[:retriable] || {}
       @retry_helper = SqlRetry.new(
@@ -41,23 +39,19 @@ module Lhm
       @start_time = Time.now
 
       return if @chunk_finder.table_empty?
-      @next_to_insert = @start
-      while @next_to_insert <= @limit || (@start == @limit)
-        stride = @throttler.stride
-        top = upper_id(@next_to_insert, stride)
+      @chunk_finder.each_chunk do |chunk|
         verify_can_run
 
-        affected_rows = ChunkInsert.new(@migration, @connection, bottom, top, @retry_options).insert_and_return_count_of_rows_created
-        expected_rows = top - bottom + 1
+        affected_rows = chunk.insert_and_return_count_of_rows_created
 
         # Only log the chunker progress every 5 minutes instead of every iteration
         current_time = Time.now
         if current_time - @start_time > (5 * 60)
-          Lhm.logger.info("Inserted #{affected_rows} rows into the destination table from #{bottom} to #{top}")
+          Lhm.logger.info("Inserted #{affected_rows} rows into the destination table from #{chunk.bottom} to #{chunk.top}")
           @start_time = current_time
         end
 
-        if affected_rows < expected_rows
+        if affected_rows < chunk.expected_rows
           raise_on_non_pk_duplicate_warning
         end
 
@@ -65,10 +59,7 @@ module Lhm
           @throttler.run
         end
 
-        @next_to_insert = top + 1
-        @printer.notify(bottom, @limit)
-
-        break if @start == @limit
+        @printer.notify(@chunk_finder.processed_rows, @chunk_finder.max_rows)
       end
       @printer.end
     rescue => e
@@ -88,22 +79,11 @@ module Lhm
       end
     end
 
-    def bottom
-      @next_to_insert
-    end
-
     def verify_can_run
       return unless @verifier
       @retry_helper.with_retries(log_prefix: LOG_PREFIX) do |retriable_connection|
         raise "Verification failed, aborting early" if !@verifier.call(retriable_connection)
       end
-    end
-
-    def upper_id(next_id, stride)
-      sql = "select id from `#{ @migration.origin_name }` where id >= #{ next_id } order by id limit 1 offset #{ stride - 1}"
-      top = @connection.select_value(sql, should_retry: true, log_prefix: LOG_PREFIX)
-
-      [top ? top.to_i : @limit, @limit].min
     end
 
     def validate

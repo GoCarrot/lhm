@@ -24,6 +24,18 @@ module Lhm
       "#{ conditions } `#{ @migration.origin_name }`.`id` between #{ @lowest } and #{ @highest }"
     end
 
+    def bottom
+      @lowest
+    end
+
+    def top
+      @highest
+    end
+
+    def expected_rows
+      top - bottom + 1
+    end
+
     private
     # XXX this is extremely brittle and doesn't work when filter contains more
     # than one SQL clause, e.g. "where ... group by foo". Before making any
