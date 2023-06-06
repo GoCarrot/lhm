@@ -11,8 +11,6 @@ module Lhm
       @processed_rows = 0
     end
 
-    attr_accessor :start, :limit
-
     def table_empty?
       start.nil? && limit.nil?
     end
@@ -43,6 +41,8 @@ module Lhm
     end
 
     private
+
+    attr_reader :start, :limit
 
     def select_start_from_db
       @connection.select_value("select min(id) from `#{ @migration.origin_name }`")

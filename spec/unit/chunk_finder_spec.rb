@@ -32,7 +32,7 @@ describe Lhm::ChunkFinder do
       end
 
       it 'returns 5' do
-        assert_equal @instance.start, 5
+        assert_equal @instance.send(:start), 5
       end
     end
 
@@ -43,7 +43,7 @@ describe Lhm::ChunkFinder do
       end
 
       it 'returns 22' do
-        assert_equal @instance.start, 22
+        assert_equal @instance.send(:start), 22
       end
     end
   end
@@ -55,7 +55,7 @@ describe Lhm::ChunkFinder do
       end
 
       it 'returns 6' do
-        assert_equal @instance.limit, 6
+        assert_equal @instance.send(:limit), 6
       end
     end
 
@@ -66,7 +66,7 @@ describe Lhm::ChunkFinder do
       end
 
       it 'returns 33' do
-        assert_equal @instance.limit, 33
+        assert_equal @instance.send(:limit), 33
       end
     end
   end
