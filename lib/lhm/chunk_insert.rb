@@ -18,12 +18,6 @@ module Lhm
       @connection.update(sql, should_retry: true, log_prefix: LOG_PREFIX)
     end
 
-    def sql
-      "insert ignore into `#{ @migration.destination_name }` (#{ @migration.destination_columns }) " \
-      "select #{ @migration.origin_columns } from `#{ @migration.origin_name }` " \
-      "#{ conditions } `#{ @migration.origin_name }`.`id` between #{ @lowest } and #{ @highest }"
-    end
-
     def bottom
       @lowest
     end
@@ -37,6 +31,13 @@ module Lhm
     end
 
     private
+
+    def sql
+      "insert ignore into `#{ @migration.destination_name }` (#{ @migration.destination_columns }) " \
+      "select #{ @migration.origin_columns } from `#{ @migration.origin_name }` " \
+      "#{ conditions } `#{ @migration.origin_name }`.`id` between #{ @lowest } and #{ @highest }"
+    end
+
     # XXX this is extremely brittle and doesn't work when filter contains more
     # than one SQL clause, e.g. "where ... group by foo". Before making any
     # more changes here, please consider either:
