@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    lhm-shopify (3.5.5)
+    lhm-teak (3.6.0)
       retriable (>= 3.0.0)
 
 GEM
@@ -55,7 +55,7 @@ DEPENDENCIES
   after_do
   appraisal
   byebug
-  lhm-shopify!
+  lhm-teak!
   minitest
   mocha
   mysql2
