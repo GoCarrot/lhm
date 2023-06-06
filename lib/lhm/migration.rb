@@ -6,7 +6,7 @@ require 'lhm/timestamp'
 
 module Lhm
   class Migration
-    attr_reader :origin, :destination, :conditions, :renames
+    attr_reader :origin, :destination, :renames
 
     def initialize(origin, destination, conditions = nil, renames = {}, time = Time.now)
       @origin = origin
@@ -14,6 +14,14 @@ module Lhm
       @conditions = conditions
       @renames = renames
       @table_name = TableName.new(@origin.name, time)
+    end
+
+    def conditions
+      if @conditions.kind_of?(Proc)
+        @conditions.call
+      else
+        @conditions
+      end
     end
 
     def archive_name

@@ -45,5 +45,23 @@ describe Lhm::ChunkInsert do
         )
       end
     end
+
+    describe "when migration has a WHERE as a proc" do
+      before do
+        @date = Date.today.to_s
+        @migration = Lhm::Migration.new(
+          @origin,
+          @destination,
+          -> { "where foo.created_at > '#{@date}' or foo.baz = 'quux'" }
+        )
+      end
+
+      it "combines the clause with the chunking WHERE condition" do
+        assert_equal(
+          Lhm::ChunkInsert.new(@migration, @connection, 1, 2).send(:sql),
+          "insert ignore into `bar` () select  from `foo` where (foo.created_at > '#{@date}' or foo.baz = 'quux') and `foo`.`id` between 1 and 2"
+        )
+      end
+    end
   end
 end

@@ -176,9 +176,14 @@ module Lhm
     #     m.filter("inner join users on users.`id` = sounds.`user_id` and sounds.`public` = 1")
     #   end
     #
-    # @param [ String ] sql The sql filter.
+    # @example Add a dynamic conditions filter to the migration.
+    #   Lhm.change_table(:sounds) do |m|
+    #     m.filter(-> { "where sounds.created_at <= '#{Time.now.to_fs(:db)}'" })
+    #   end
     #
-    # @return [ String ] The sql filter.
+    # @param [ String, Proc ] sql The sql filter or a proc that returns a sql filter.
+    #
+    # @return [ String, Proc ] The sql filter.
     def filter(sql)
       @conditions = sql
     end
