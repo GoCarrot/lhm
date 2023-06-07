@@ -20,7 +20,7 @@ module Lhm
     def initialize(migration, connection = nil, options = {})
       @migration = migration
       @connection = connection
-      @chunk_finder = options.fetch(:chuck_finder, ChunkFinder).new(migration, connection, options)
+      @chunk_finder = options.fetch(:chunk_finder, ChunkFinder).new(migration, connection, options)
       @options = options
       @raise_on_warnings = options.fetch(:raise_on_warnings, false)
       @verifier = options[:verifier]
