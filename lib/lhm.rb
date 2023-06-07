@@ -11,7 +11,6 @@ require 'lhm/sql_retry'
 require 'lhm/proxysql_helper'
 require 'lhm/connection'
 require 'lhm/test_support'
-require 'lhm/railtie' if defined?(Rails::Railtie)
 require 'logger'
 
 # Large hadron migrator - online schema change tool
