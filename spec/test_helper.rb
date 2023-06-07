@@ -3,7 +3,9 @@
 
 if ENV['COV']
   require 'simplecov'
-  SimpleCov.start
+  SimpleCov.start do
+    enable_coverage :branch
+  end
 end
 
 require 'minitest/autorun'
