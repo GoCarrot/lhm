@@ -43,11 +43,11 @@ describe Lhm::IdSetChunkFinder do
 
       @connection.expects(:select_values).with(regexp_matches(/order by id asc/),EXPECTED_RETRY_FLAGS_CHUNKER).returns((1..20).select(&:odd?))
 
-      @connection.expects(:update).with(regexp_matches(/`id` in \(1,3\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(5,7\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(9,11\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(13,15\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(17,19\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 1 and 3/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 5 and 7/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 9 and 11/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 13 and 15/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 17 and 19/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
 
       @chunker.run
     end
@@ -66,10 +66,10 @@ describe Lhm::IdSetChunkFinder do
 
       @connection.expects(:select_values).with(regexp_matches(/order by id asc/),EXPECTED_RETRY_FLAGS_CHUNKER).returns((1..20).select(&:odd?))
 
-      @connection.expects(:update).with(regexp_matches(/`id` in \(1,3\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(5,7,9\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(11,13,15\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(17,19\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 1 and 3/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 5 and 9/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 11 and 15/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 17 and 19/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
 
       @connection.expects(:execute).twice.with(regexp_matches(/show warnings/),EXPECTED_RETRY_FLAGS_CHUNKER).returns([])
 
@@ -81,7 +81,7 @@ describe Lhm::IdSetChunkFinder do
                                                            :chunk_finder => Lhm::IdSetChunkFinder)
 
       @connection.expects(:select_values).with(regexp_matches(/order by id asc/),EXPECTED_RETRY_FLAGS_CHUNKER).returns([1])
-      @connection.expects(:update).with(regexp_matches(/`id` in \(1\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(1)
+      @connection.expects(:update).with(regexp_matches(/`id` between 1 and 1/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(1)
 
       @chunker.run
     end
@@ -95,11 +95,11 @@ describe Lhm::IdSetChunkFinder do
 
       @connection.expects(:select_values).with(regexp_matches(/order by id asc/),EXPECTED_RETRY_FLAGS_CHUNKER).returns((2..10).to_a)
 
-      @connection.expects(:update).with(regexp_matches(/`id` in \(2,3\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(4,5\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(6,7\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(8,9\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
-      @connection.expects(:update).with(regexp_matches(/`id` in \(10\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(1)
+      @connection.expects(:update).with(regexp_matches(/`id` between 2 and 3/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 4 and 5/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 6 and 7/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 8 and 9/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(2)
+      @connection.expects(:update).with(regexp_matches(/`id` between 10 and 10/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(1)
 
       @chunker.run
     end
@@ -113,7 +113,7 @@ describe Lhm::IdSetChunkFinder do
       end
 
       @connection.expects(:select_values).with(regexp_matches(/order by id asc/),EXPECTED_RETRY_FLAGS_CHUNKER).returns([1, 2])
-      @connection.expects(:update).with(regexp_matches(/where \(foo.created_at > '2013-07-10' or foo.baz = 'quux'\) and `foo`.*`id` in \(1,2\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(1)
+      @connection.expects(:update).with(regexp_matches(/where \(foo.created_at > '2013-07-10' or foo.baz = 'quux'\) and `foo`.*`id` between 1 and 2/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(1)
       @connection.expects(:execute).with(regexp_matches(/show warnings/),EXPECTED_RETRY_FLAGS_CHUNKER).returns([])
 
       def @migration.conditions
@@ -132,7 +132,7 @@ describe Lhm::IdSetChunkFinder do
       end
 
       @connection.expects(:select_values).with(regexp_matches(/order by id asc/),EXPECTED_RETRY_FLAGS_CHUNKER).returns([1,2])
-      @connection.expects(:update).with(regexp_matches(/inner join bar on foo.id = bar.foo_id and.*`id` in \(1,2\)/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(1)
+      @connection.expects(:update).with(regexp_matches(/inner join bar on foo.id = bar.foo_id and.*`id` between 1 and 2/),EXPECTED_RETRY_FLAGS_CHUNK_INSERT).returns(1)
       @connection.expects(:execute).with(regexp_matches(/show warnings/),EXPECTED_RETRY_FLAGS_CHUNKER).returns([])
 
       def @migration.conditions

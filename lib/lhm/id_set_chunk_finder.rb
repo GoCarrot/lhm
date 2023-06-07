@@ -23,9 +23,10 @@ module Lhm
       @processed_rows = 0
       while @processed_rows < ids.length
         next_idx = [@processed_rows + @throttler.stride, @ids.length].min
-        ids_to_insert = ids[@processed_rows...next_idx]
+        range = @processed_rows...next_idx
+        ids_to_insert = ids[range]
         @processed_rows = next_idx
-        yield IdSetChunkInsert.new(@migration, @connection, ids_to_insert)
+        yield ChunkInsert.new(@migration, @connection, ids_to_insert[0], ids_to_insert[-1], expected_rows: range.count)
       end
     end
 

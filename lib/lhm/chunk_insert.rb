@@ -6,12 +6,12 @@ module Lhm
 
     LOG_PREFIX = "ChunkInsert"
 
-    def initialize(migration, connection, lowest, highest, retry_options = {})
+    def initialize(migration, connection, lowest, highest, options = {})
       @migration = migration
       @connection = connection
       @lowest = lowest
       @highest = highest
-      @retry_options = retry_options
+      @options = options
     end
 
     def insert_and_return_count_of_rows_created
@@ -27,7 +27,7 @@ module Lhm
     end
 
     def expected_rows
-      top - bottom + 1
+      @options.fetch(:expected_rows, top - bottom + 1)
     end
 
     private
