@@ -67,5 +67,3 @@ def init_test_db
 end
 
 init_test_db
-
-
