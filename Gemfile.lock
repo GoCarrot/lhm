@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    lhm-teak (3.6.0)
+    lhm-teak (3.6.1)
       retriable (>= 3.0.0)
 
 GEM
