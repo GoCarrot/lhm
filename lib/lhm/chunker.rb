@@ -28,6 +28,7 @@ module Lhm
         @throttler.connection = @connection if @throttler.respond_to?(:connection=)
       end
       @printer = options[:printer] || Printer::Percentage.new
+      @pause_before_switch = options[:pause_before_switch]
       @retry_options = options[:retriable] || {}
       @retry_helper = SqlRetry.new(
         @connection,
@@ -62,6 +63,7 @@ module Lhm
         @printer.notify(@chunk_finder.processed_rows, @chunk_finder.max_rows)
       end
       @printer.end
+      sleep @pause_before_switch if @pause_before_switch
     rescue => e
       @printer.exception(e) if @printer.respond_to?(:exception)
       raise
